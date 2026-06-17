@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metal Punching Hole Detector</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            width: 100%;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            margin-top: 0.5rem;
+            color: #dcdde1;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 90%;
+            margin: 3rem auto;
+            background: #2f3640;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            border: 2px dashed #7f8fa6;
+            padding: 3rem;
+            border-radius: 12px;
+            background-color: #353b48;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #00a8ff;
+            background-color: #2f3640;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            border: none;
+            display: inline-block;
+            padding: 12px 24px;
+            cursor: pointer;
+            background-color: #00a8ff;
+            border-radius: 6px;
+            font-weight: bold;
+            color: white;
+            transition: background 0.3s, transform 0.2s;
+            font-size: 1.1rem;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #0097e6;
+            transform: translateY(-2px);
+        }
+
+        .file-name {
+            color: #dcdde1;
+            font-size: 0.95rem;
+        }
+
+        .submit-btn {
+            background-color: #4cd137;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #44bd32;
+            transform: translateY(-2px);
+        }
+
+        .error {
+            color: #e84118;
+            background-color: rgba(232, 65, 24, 0.1);
+            padding: 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            border: 1px solid #e84118;
+        }
+
+        .results-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .image-card {
+            background: #353b48;
+            border: 1px solid #4a5463;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .image-card h3 {
+            margin-top: 0;
+            color: #fbc531;
+            margin-bottom: 1rem;
+        }
+
+        .image-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Metal Punching Hole Detector</h1>
+        <p>Unggah gambar untuk mendeteksi punching hole menggunakan AI</p>
+    </header>
+
+    <div class="container">
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="upload-section" id="uploadForm">
+            <label class="custom-file-upload">
+                <input type="file" name="file" accept=".png, .jpg, .jpeg" id="fileInput" required>
+                Pilih Gambar
+            </label>
+            <span class="file-name" id="fileName">Belum ada gambar yang dipilih</span>
+            <button type="submit" class="submit-btn" id="submitBtn">Proses Gambar</button>
+        </form>
+
+        {% if original_image and result_image %}
+        <div class="results-section">
+            <div class="image-card">
+                <h3>Hasil Pemrosesan Model</h3>
+                <p style="font-size: 0.9rem; color: #7f8fa6; margin-top: -10px; margin-bottom: 15px;">
+                    (Grayscale &rarr; Adaptive Threshold &rarr; Opening &rarr; YOLO Bounding Box)
+                </p>
+                <img src="{{ url_for('static', filename='results/' + result_image) }}" alt="Result Image">
+
+                {% if detections %}
+                <div
+                    style="margin-top: 20px; text-align: left; background-color: #2f3640; padding: 15px; border-radius: 8px;">
+                    <h4 style="margin-top: 0; color: #00a8ff; border-bottom: 1px solid #4a5463; padding-bottom: 10px;">
+                        Rincian Deteksi:</h4>
+                    <ul style="list-style-type: none; padding-left: 0; margin-bottom: 0;">
+                        {% for det in detections %}
+                        <li style="margin-bottom: 8px; font-size: 1.05rem;">
+                            <span style="font-weight: bold; color: #fbc531;">#{{ det.num }}</span>
+                            dengan poin <span style="font-weight: bold; color: #4cd137;">{{ "%.2f"|format(det.conf)
+                                }}</span>
+                            hasilnya <span style="font-weight: bold; color: #dcdde1;">{{ det.class_name }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            <div class="image-card">
+                <h3>Gambar Asli</h3>
+                <img src="{{ url_for('static', filename='uploads/' + original_image) }}" alt="Original Image">
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function (e) {
+            var fileName = e.target.files[0] ? e.target.files[0].name : "Belum ada gambar yang dipilih";
+            document.getElementById('fileName').textContent = fileName;
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function () {
+            var btn = document.getElementById('submitBtn');
+            btn.textContent = 'Memproses...';
+            btn.style.backgroundColor = '#7f8fa6';
+            btn.style.cursor = 'not-allowed';
+        });
+    </script>
+</body>
+
+</html>
