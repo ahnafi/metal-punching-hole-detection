@@ -49,8 +49,8 @@ def process_image(filepath, filename):
     detections = []
     # Palet warna unik untuk setiap deteksi
     colors = [
-        (255, 0, 0),   # Biru
         (0, 255, 0),   # Hijau
+        (255, 0, 0),   # Biru
         (0, 0, 255),   # Merah
         (0, 255, 255), # Kuning
         (255, 0, 255), # Magenta
@@ -81,16 +81,17 @@ def process_image(filepath, filename):
         cv2.rectangle(img, (x1, y1), (x2, y2), color, 3)
         
         # Menulis label (#1 (0.85))
-        label = f"#{num} ({conf:.2f})"
-        (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)
+        # label = f"#{num} ({conf:.2f})"
+        label = f"#{num}"
+        (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 1.2, 3)
         
         # Background teks agar tulisan kontras (pada processed_bgr)
-        cv2.rectangle(processed_bgr, (x1, y1 - h - 10), (x1 + w, y1), color, -1)
-        cv2.putText(processed_bgr, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+        cv2.rectangle(processed_bgr, (x1, y1 - h - 15), (x1 + w, y1), color, -1)
+        cv2.putText(processed_bgr, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 0), 3)
         
         # Background teks agar tulisan kontras (pada img asli)
-        cv2.rectangle(img, (x1, y1 - h - 10), (x1 + w, y1), color, -1)
-        cv2.putText(img, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+        cv2.rectangle(img, (x1, y1 - h - 15), (x1 + w, y1), color, -1)
+        cv2.putText(img, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 0), 3)
         
         # Menyimpan data deteksi untuk dilempar ke template HTML
         detections.append({

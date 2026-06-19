@@ -202,9 +202,8 @@
                         {% for det in detections %}
                         <li style="margin-bottom: 8px; font-size: 1.05rem;">
                             <span style="font-weight: bold; color: #fbc531;">#{{ det.num }}</span>
-                            dengan poin <span style="font-weight: bold; color: #4cd137;">{{ "%.2f"|format(det.conf)
-                                }}</span>
-                            hasilnya <span style="font-weight: bold; color: #dcdde1;">{{ det.class_name }}</span>
+                            Terdeteksi <span style="font-weight: bold; color: #dcdde1;">{{ det.class_name }}</span>
+                            dengan akurasi <span style="font-weight: bold; color: {% if det.conf >= 0.80 %}#4cd137{% elif det.conf >= 0.40 %}#fbc531{% else %}#e84118{% endif %};">{{ "%.2f"|format(det.conf) }}</span> poin
                         </li>
                         {% endfor %}
                     </ul>
